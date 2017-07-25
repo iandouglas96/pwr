@@ -1,14 +1,26 @@
+//Connect to the websocket
 var socket = io();
-socket.on('news', function(data) {
-	console.log(data);
-});
 
-var chart = c3.generate({
-	bindto: '#chart',
+//Create chart object to 
+var power_chart = c3.generate({
+	bindto: '#power_chart',
 	data: {
 		columns: [
-			['data1', 10, 30, 20, 400, 3],
-			['data2', 50, 20, 45, 67, 67]
+			['power', 1, 3, 2, 4, 3]
 		]
 	}
 });
+
+//Have new data, push it to the graph
+socket.on('data', function(data) {
+	console.log(data);
+    power_chart.flow({
+        columns: [
+            ['power', data.power]
+        ],
+        duration: 1500
+    });
+});
+
+
+
