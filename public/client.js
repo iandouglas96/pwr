@@ -5,9 +5,7 @@ var socket = io();
 var power_gauge = c3.generate({
     bindto: '#power_gauge',
     data: {
-        columns: [
-            ['power', 0]
-        ],
+        columns: [['power', 0]],
         type: 'gauge'
     },
     gauge: {
@@ -29,19 +27,46 @@ var power_gauge = c3.generate({
 var power_chart = c3.generate({
 	bindto: '#power_chart',
 	data: {
-		columns: [
-			['power', 1, 3, 2, 4, 3]
-		]
-	}
+        xFormat: '%Y-%m-%dT%H:%M:%S.%LZ',
+        columns: [],
+        keys: {
+            x: 'time',
+            value: ['power']
+        },
+        empty: { label: { text: "No Data Available" }   }
+	},
+    axis: {
+        x: {
+            type: 'timeseries',
+            tick: {
+                format: '%H:%M:%S'
+            }
+        }
+    }
+});
+
+//Request the day's data to display
+socket.emit('request_data', {type:'pv_power', time:'today'});
+//Wait for the response
+socket.on('data_return', function(data) {
+    //Load dat into chart
+    power_chart.load({
+        json: data,
+        keys: {
+            x: 'time',
+            value: ['power']
+        } 
+    });
 });
 
 //Have new data, push it to the graph
-socket.on('data', function(data) {
+socket.on('new_data', function(data) {
 	console.log(data);
     //update graph
     power_chart.flow({
         columns: [
-            ['power', data.power]
+            ['power', data.power],
+            ['time', data.time]
         ],
         duration: 1500,
         to: 0
