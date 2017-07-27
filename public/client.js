@@ -33,7 +33,11 @@ var power_chart = c3.generate({
             x: 'time',
             value: ['power']
         },
-        empty: { label: { text: "No Data Available" }   }
+        empty: { 
+            label: { 
+                text: "No Data Available" 
+            }   
+        }
 	},
     axis: {
         x: {
