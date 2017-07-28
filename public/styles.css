@@ -1,0 +1,21 @@
+html, body {
+    height: 100%;
+}
+
+.footer {
+    height: 50px;
+    background-image: url(graphics/pxlweavr_logo.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-top: 20px;
+}
+
+.logo {
+    height: 100px;
+    background-image: url(graphics/pwr_logo.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-bottom: 20px;
+}

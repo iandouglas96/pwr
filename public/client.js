@@ -6,7 +6,10 @@ var power_gauge = c3.generate({
     bindto: '#power_gauge',
     data: {
         columns: [['power', 0]],
-        type: 'gauge'
+        type: 'gauge',
+        colors: {
+            'power': "#6ABD45"
+        }
     },
     gauge: {
         label: {
@@ -37,6 +40,9 @@ var power_chart = c3.generate({
             label: { 
                 text: "No Data Available" 
             }   
+        },
+        colors: {
+            'power': "#6ABD45"
         }
 	},
     axis: {
@@ -53,7 +59,7 @@ var power_chart = c3.generate({
 socket.emit('request_data', {type:'pv_power', time:'today'});
 //Wait for the response
 socket.on('data_return', function(data) {
-    //Load dat into chart
+    //Load data into chart
     power_chart.load({
         json: data,
         keys: {
@@ -61,6 +67,13 @@ socket.on('data_return', function(data) {
             value: ['power']
         } 
     });
+    
+    //Gauge should show most recent value
+    if (data.length > 0) {
+        power_gauge.load({
+            columns: [['power', data[data.length-1].power]]
+        });
+    }
 });
 
 //Have new data, push it to the graph

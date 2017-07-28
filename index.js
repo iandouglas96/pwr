@@ -54,4 +54,4 @@ setInterval(function () {
     
     //push to the db
     db.query("INSERT INTO pv (power) VALUE (?)", [pvPower]);
-}, 5000);
+}, 60000);
