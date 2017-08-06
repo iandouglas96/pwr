@@ -4,6 +4,8 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var mysql = require('mysql');
+var fs = require('fs');
+var sma = require('./sma.js').Sma;
 
 //Connect to mysql db
 var db = mysql.createConnection({
@@ -26,6 +28,37 @@ http.listen(3000, function () {
 	console.log('listening on *:3000');
 });
 
+//Load inverter password from config file (get just the first line)
+var inv_pass = fs.readFileSync("./inverter.pass", "UTF8").split('\n')[0];
+console.log("Loaded password: "+inv_pass);
+
+//Connect to inverter
+var inv_ip = "";
+var inv_connected = false;
+var inverter = new sma(function(type, data) {
+  switch (type) {
+    case "scan":
+      inv_ip = data;
+      //We have an ip, now let's try to log on
+      inverter.logon(inv_ip, inv_pass);
+      break;
+    case "logon":
+      inv_connected = true;
+      break;
+    case "power":
+      console.log('PV pwr: '+data+' kW');
+
+      //emit as a broadcast to the whole world
+      var currentTime = new Date();
+      io.emit('new_data', {time:currentTime.toISOString(), power:data});
+
+      //push to the db
+      db.query("INSERT INTO pv (power) VALUE (?)", [data]);
+      break;
+  }
+});
+inverter.scan();
+
 //Connect to client
 io.on('connection', function(socket) {
     //Wait for data requests from clients and serve 'em up
@@ -44,14 +77,10 @@ io.on('connection', function(socket) {
 
 //Regularly fetch data every 5 seconds
 setInterval(function () {
-    //Just push a random number for now
-    var pvPower = Math.random()*6.2;
-    console.log('PV pwr: '+pvPower+' kW');
-    
-    //emit as a broadcast to the whole world
-    var currentTime = new Date();
-    io.emit('new_data', {time:currentTime.toISOString(), power:pvPower});
-    
-    //push to the db
-    db.query("INSERT INTO pv (power) VALUE (?)", [pvPower]);
-}, 60000);
+    if (inv_connected && inv_ip != "") {
+      inverter.getPower(inv_ip);
+    } else {
+      //Reconnect, we have problems
+      inverter.scan();
+    }
+}, 5000);
