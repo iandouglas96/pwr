@@ -87,4 +87,4 @@ setInterval(function () {
       //Reconnect, we have problems
       inverter.scan();
     }
-}, 5000);
+}, 60000);
