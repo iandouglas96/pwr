@@ -31,6 +31,10 @@ function Sma(callback) {
         break;
       case "power":
         var retval = reply.readUInt32LE(0x68-0x2A)/1000.0;
+        //If it's really big, actually 0
+        if (retval > 1000000) {
+          retval = 0;
+        }
         break;
       default:
         var retval = NULL;

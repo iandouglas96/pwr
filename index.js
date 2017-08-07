@@ -7,11 +7,19 @@ var mysql = require('mysql');
 var fs = require('fs');
 var sma = require('./sma.js').Sma;
 
+//Load inverter password from config file (get just the first line)
+var inv_pass = fs.readFileSync("./inverter.pass", "UTF8").split('\n')[0];
+console.log("Loade inv password: "+inv_pass);
+
+//Load db password from config file (get just the first line)
+var db_pass = fs.readFileSync("./db.pass", "UTF8").split('\n')[0];
+console.log("Loaded db password: "+db_pass);
+
 //Connect to mysql db
 var db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: db_pass,
     database: 'pwr'
 });
 
@@ -27,10 +35,6 @@ app.use(express.static('public'));
 http.listen(3000, function () {
 	console.log('listening on *:3000');
 });
-
-//Load inverter password from config file (get just the first line)
-var inv_pass = fs.readFileSync("./inverter.pass", "UTF8").split('\n')[0];
-console.log("Loaded password: "+inv_pass);
 
 //Connect to inverter
 var inv_ip = "";
