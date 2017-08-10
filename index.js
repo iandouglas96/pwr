@@ -9,7 +9,7 @@ var sma = require('./sma.js').Sma;
 
 //Load inverter password from config file (get just the first line)
 var inv_pass = fs.readFileSync("./inverter.pass", "UTF8").split('\n')[0];
-console.log("Loade inv password: "+inv_pass);
+console.log("Loaded inv password: "+inv_pass);
 
 //Load db password from config file (get just the first line)
 var db_pass = fs.readFileSync("./db.pass", "UTF8").split('\n')[0];

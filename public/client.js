@@ -36,10 +36,10 @@ var power_chart = c3.generate({
             x: 'time',
             value: ['power']
         },
-        empty: { 
-            label: { 
-                text: "No Data Available" 
-            }   
+        empty: {
+            label: {
+                text: "No Data Available"
+            }
         },
         colors: {
             'power': "#6ABD45"
@@ -48,6 +48,7 @@ var power_chart = c3.generate({
     axis: {
         x: {
             type: 'timeseries',
+            localtime: false,
             tick: {
                 format: '%H:%M:%S'
             }
@@ -65,9 +66,9 @@ socket.on('data_return', function(data) {
         keys: {
             x: 'time',
             value: ['power']
-        } 
+        }
     });
-    
+
     //Gauge should show most recent value
     if (data.length > 0) {
         power_gauge.load({
