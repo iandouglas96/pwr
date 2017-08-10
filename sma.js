@@ -37,7 +37,7 @@ function Sma(callback) {
         }
         break;
       default:
-        var retval = NULL;
+        var retval = "";
         break;
     }
     console.log(state+" data received: "+retval);

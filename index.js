@@ -59,6 +59,9 @@ var inverter = new sma(function(type, data) {
       //push to the db
       db.query("INSERT INTO pv (power) VALUE (?)", [data]);
       break;
+    default:
+      console.log("Something weird happened");
+      break;
   }
 });
 inverter.scan();
