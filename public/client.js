@@ -48,7 +48,7 @@ var power_chart = c3.generate({
     axis: {
         x: {
             type: 'timeseries',
-            localtime: false,
+            localtime: true,
             tick: {
                 format: '%H:%M:%S'
             }

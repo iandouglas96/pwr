@@ -20,7 +20,8 @@ var db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: db_pass,
-    database: 'pwr'
+    database: 'pwr',
+    timezone: 'utc'
 });
 
 db.connect();
@@ -75,6 +76,7 @@ io.on('connection', function(socket) {
         if (args.type == 'pv_power' && args.time == 'today') {
             db.query('SELECT * FROM pv WHERE time >= CURDATE()', function(err, results, fields) {
                 //Convert data to JSON object
+                console.log(results);
                 data = JSON.parse(JSON.stringify(results));
                 socket.emit('data_return', data);
             });
@@ -84,10 +86,23 @@ io.on('connection', function(socket) {
 
 //Regularly fetch data every 5 seconds
 setInterval(function () {
-    if (inv_connected && inv_ip != "") {
+    /*if (inv_connected && inv_ip != "") {
       inverter.getPower(inv_ip);
     } else {
       //Reconnect, we have problems
       inverter.scan();
-    }
-}, 60000);
+    }*/
+
+    data = 3.2;
+    console.log('PV pwr: '+data+' kW');
+
+    //emit as a broadcast to the whole world
+    var currentTime = new Date();
+    //parse time to get it locally
+    var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+    var localISOTime = (new Date(Date.now() - tzoffset)).toISOString();
+    io.emit('new_data', {time:localISOTime, power:data});
+
+    //push to the db
+    db.query("INSERT INTO pv (power) VALUE (?)", [data]);
+}, 5000);
