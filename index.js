@@ -55,7 +55,10 @@ var inverter = new sma(function(type, data) {
 
       //emit as a broadcast to the whole world
       var currentTime = new Date();
-      io.emit('new_data', {time:currentTime.toISOString(), power:data});
+      //parse time to get it locally
+      var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+      var localISOTime = (new Date(Date.now() - tzoffset)).toISOString();
+      io.emit('new_data', {time:localISOTime, power:data});
 
       //push to the db
       db.query("INSERT INTO pv (power) VALUE (?)", [data]);
@@ -86,23 +89,10 @@ io.on('connection', function(socket) {
 
 //Regularly fetch data every 5 seconds
 setInterval(function () {
-    /*if (inv_connected && inv_ip != "") {
+    if (inv_connected && inv_ip != "") {
       inverter.getPower(inv_ip);
     } else {
       //Reconnect, we have problems
       inverter.scan();
-    }*/
-
-    data = 3.2;
-    console.log('PV pwr: '+data+' kW');
-
-    //emit as a broadcast to the whole world
-    var currentTime = new Date();
-    //parse time to get it locally
-    var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-    var localISOTime = (new Date(Date.now() - tzoffset)).toISOString();
-    io.emit('new_data', {time:localISOTime, power:data});
-
-    //push to the db
-    db.query("INSERT INTO pv (power) VALUE (?)", [data]);
+    }
 }, 5000);
