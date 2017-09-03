@@ -41,31 +41,36 @@ http.listen(3000, function () {
 var inv_ip = "";
 var inv_connected = false;
 var inverter = new sma(function(type, data) {
-  switch (type) {
-    case "scan":
-      inv_ip = data;
-      //We have an ip, now let's try to log on
-      inverter.logon(inv_ip, inv_pass);
-      break;
-    case "logon":
-      inv_connected = true;
-      break;
-    case "power":
-      console.log('PV pwr: '+data+' kW');
+  if (data == "error") {
+    console.log("Error, trying to reconnect...");
+    inv_connected = false;
+  } else {
+    switch (type) {
+      case "scan":
+        inv_ip = data;
+        //We have an ip, now let's try to log on
+        inverter.logon(inv_ip, inv_pass);
+        break;
+      case "logon":
+        inv_connected = true;
+        break;
+      case "power":
+        console.log('PV pwr: '+data+' kW');
 
-      //emit as a broadcast to the whole world
-      var currentTime = new Date();
-      //parse time to get it locally
-      var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-      var localISOTime = (new Date(Date.now() - tzoffset)).toISOString();
-      io.emit('new_data', {time:localISOTime, power:data});
+        //emit as a broadcast to the whole world
+        var currentTime = new Date();
+        //parse time to get it locally
+        var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+        var localISOTime = (new Date(Date.now() - tzoffset)).toISOString();
+        io.emit('new_data', {time:localISOTime, power:data});
 
-      //push to the db
-      db.query("INSERT INTO pv (power) VALUE (?)", [data]);
-      break;
-    default:
-      console.log("Something weird happened");
-      break;
+        //push to the db
+        db.query("INSERT INTO pv (power) VALUE (?)", [data]);
+        break;
+      default:
+        console.log("Something weird happened");
+        break;
+    }
   }
 });
 inverter.scan();

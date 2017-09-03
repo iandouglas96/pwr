@@ -21,23 +21,31 @@ function Sma(callback) {
     //Data processing is dependent on the command type
     switch(state) {
       case "scan":
-        var retval = ""+reply.readUInt8(0x26)+".";
-        retval += reply.readUInt8(0x27)+".";
-        retval += reply.readUInt8(0x28)+".";
-        retval += reply.readUInt8(0x29);
+        if (Buffer.byteLength(reply) >= 0x29) {
+          var retval = ""+reply.readUInt8(0x26)+".";
+          retval += reply.readUInt8(0x27)+".";
+          retval += reply.readUInt8(0x28)+".";
+          retval += reply.readUInt8(0x29);
+        } else {
+          var retval = "error";
+        }
         break;
       case "logon":
         var retval = "success";
         break;
       case "power":
-        var retval = reply.readUInt32LE(0x68-0x2A)/1000.0;
-        //If it's really big, actually 0
-        if (retval > 1000000) {
-          retval = 0;
+        if (Buffer.byteLength(reply) >= 0x68) {
+          var retval = reply.readUInt32LE(0x68-0x2A)/1000.0;
+          //If it's really big, actually 0
+          if (retval > 1000000) {
+            retval = 0;
+          }
+        } else {
+          var retval = "error";
         }
         break;
       default:
-        var retval = "";
+        var retval = "error";
         break;
     }
     console.log(state+" data received: "+retval);
