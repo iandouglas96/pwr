@@ -34,7 +34,7 @@ function Sma(callback) {
         var retval = "success";
         break;
       case "power":
-        if (Buffer.byteLength(reply) >= 0x2A) {
+        if (Buffer.byteLength(reply) >= 0x68-0x2A) {
           var retval = reply.readUInt32LE(0x68-0x2A)/1000.0;
           //If it's really big, actually 0
           if (retval > 1000000) {
